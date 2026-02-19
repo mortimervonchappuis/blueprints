@@ -1,6 +1,5 @@
 build/
 dist/
-docs/
 make_doc.sh
 
 assets/

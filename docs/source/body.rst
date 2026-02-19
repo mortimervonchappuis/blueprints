@@ -1,0 +1,2 @@
+
+.. include:: blueprints.body.rst
