@@ -1,1 +1,2 @@
-pydata_sphinx_theme>=0.16.0
+pydata_sphinx_theme>=0.16.1
+sphinx_automodapi=0.20.0
