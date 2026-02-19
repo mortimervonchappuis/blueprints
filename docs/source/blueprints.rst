@@ -32,11 +32,11 @@ Submodules
    blueprints.joints
    blueprints.light
    blueprints.material
+   blueprints.mirrortypes
    blueprints.placeholder
    blueprints.sensors
    blueprints.sites
    blueprints.tendon
    blueprints.texture
    blueprints.tube
-   blueprints.types
    blueprints.world
