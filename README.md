@@ -15,3 +15,5 @@ Alternatively from Github:
 ```
 $ git clone https://github.com/mortimervonchappuis/mujoco_blueprints.git
 ```
+
+See [documentation](https://mujoco-blueprints.readthedocs.io/en/latest/index.html) for more details.
