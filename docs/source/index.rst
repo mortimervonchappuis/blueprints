@@ -66,7 +66,7 @@ Contents
    blueprints
 
 
-.. automodapi:: blueprints
+ .. automodapi:: blueprints
 	:skip: types.py restrict
 	:skip: AssetType
 	introduction
