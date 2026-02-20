@@ -1969,8 +1969,7 @@ class HField(blue.HFieldGeomType, BaseGeom):
 		if self.asset._built:
 			self._index = self.asset._index
 		else:
-			self._index         = indicies['hfield']
-			indicies['hfield'] += 1
+			self._index = indicies['hfield']
 		self.asset._build(parent=parent, 
 				  world=world, 
 				  indicies=indicies, 

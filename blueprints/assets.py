@@ -1639,6 +1639,7 @@ class HFieldAsset(blue.HFieldAssetType, BaseAsset, blue.thing.MoveableThing):
 							      **self._mujoco_specs({'elevation': None}))
 			self.cache._world   = world
 			self.cache._index   = indicies['hfield']
+			indicies['hfield'] += 1
 			self._built = True
 		if self._xml_root not in world._xml_asset:
 			world._xml_asset.append(self._xml_root)

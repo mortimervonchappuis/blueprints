@@ -403,11 +403,11 @@ Now we can use the two methods and the :mod:`Agent interface <blueprints.agent>`
 
 	def __init__(self, skip_frames: int = None):
 		self.world, self.ant, self.hfield = self._create_world()
-		self._n_steps = skip_frames if skipframes else 1
+		self._n_steps = skip_frames if skip_frames else 1
 		# ACTION SPACE
 		self.action_space = gym.spaces.Box(low=float('-inf'), high=float('inf'), shape=self.ant.action_shape['force'])
 		# OBSERVATION SPACE
-		self.observation_space = gym.spaces.Box(low=float('-inf'), high=float('inf'), shape=sum(i for (i,) in self.sensor_observation_shape.values()))
+		self.observation_space = gym.spaces.Box(low=float('-inf'), high=float('inf'), shape=(sum(i for (i,) in self.sensor_observation_shape.values()),))
 
 Since we are only interested in the :class:`Sensor <blueprints.sensors.BaseSensor>` observations, we do not want to render the camera on every time step. So in the ``_get_obs`` definition we only use the :attr:`sensor_observation <blueprints.agent.Agent.sensor_observation>` property.
 
@@ -430,8 +430,9 @@ For the reward computation we take a simplified version of the original `Gym Ant
 		vel_reward = self.ant.x_vel
 		term_reward = 10 if self.ant.x > 45 else 0
 		reward = vel_reward + term_reward
-		cost = 0.5 * np.sum(np.sqrt(action))
-		return reward - cost
+		cost = 0.5 * np.sqrt(np.sum(action**2))
+		info = {'term': term_reward, 'vel': vel_reward, 'cost': cost}
+		return reward - cost, info
 
 
 Resetting the enviromnent we want to not only return the simulation into its original configuration with :attr:`World.reset <blueprints.world.World.reset>` but also include some environment randomization by creating new terrain to make the RL agent more resilient to out of domain tasks.
@@ -440,7 +441,7 @@ Resetting the enviromnent we want to not only return the simulation into its ori
 .. code-block::
 	:caption: Reset
 
-	def reset(self, seed: int = None, option: dict = None):
+	def reset(self, seed: int = None, options: dict = None):
 		if seed is not None:
 			np.random.seed(seed)
 		self.hfield.terrain = self._create_terrain()
@@ -468,9 +469,8 @@ Since our ant only has ``force`` actuators (instead of ``activation`` actuators)
 		# COMPUTE RETURNS
 		truncation = self.ant.z < -10 # ANT HAS GLITCHED
 		termination = self.ant.x > 45 # ANT HAS TERMINATED
-		reward = self._get_reward(action)
+		reward, info = self._get_reward(action)
 		observation = self._get_obs()
-		info = {}
 		return observation, reward, termination, truncation, info
 
 

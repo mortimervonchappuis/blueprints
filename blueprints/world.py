@@ -527,7 +527,7 @@ class World(blue.WorldType, blue.thing.NodeThing):
 	def step(self, 
 		 n_steps: int|None       = 1, 
 		 seconds: int|float|None = None, 
-		 pbar:    bool           = True) -> None:
+		 pbar:    bool           = False) -> None:
 		"""
 		Performs timesteps in the simmulation. Exactly one argument must be given by the user. 
 		All cameras that are recording are taking images during the simulation at their respective 

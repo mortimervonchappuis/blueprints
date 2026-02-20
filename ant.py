@@ -147,7 +147,7 @@ world.attach(ant.locate(x=-48, z=1.5))
 
 ant = world.agents[0]
 
-
+hfield.terrain = heights
 #world.attach(ant, blue.geoms.Plane())
 
 #world.build()
@@ -169,5 +169,5 @@ ant = world.agents[0]
 #print()
 #print(ant.observation)
 
-world.view()
-exit()
+#world.view()
+#exit()
