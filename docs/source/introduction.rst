@@ -118,7 +118,7 @@ To multiply Things along a regular pattern :class:`Lattices <blueprints.utils.la
 	>>> row[0].alpha = -TAU/32
 	>>> row.color = blue.gradient('purple', ..., 'blue', n_steps=20) 
 
-.. image:: /_static/domino_rainbow.gif
+.. image:: /_static/rainbow_domino.gif
 
 The following reconstructs a lattice drawn by M. C. Escher.
 
