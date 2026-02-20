@@ -72,7 +72,7 @@ Types
 -----
 
 To enable typesafty :meth:`restrictions <blueprints.utils.typechecker.restrict>` via type hints, the 
-inheritance hierarchy of :class:`Things <blueprints.thing.base.BaseThing>` is mirrored in :mod:`types <blueprints.types>`.
+inheritance hierarchy of :class:`Things <blueprints.thing.base.BaseThing>` is mirrored in :mod:`types <blueprints.mirrortypes>`.
 
 
 .. inheritance-diagram:: blueprints.mirrortypes
