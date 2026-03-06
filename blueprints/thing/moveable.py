@@ -791,7 +791,7 @@ class MoveableThing(blue.MoveableThingType, base.BaseThing):
 		-------
 		np.ndarray
 		"""
-		quat = blue.Rotation.euler_to_quat(self.alpha. self.beta, self.gamma)
+		quat = blue.Rotation.euler_to_quat(self.alpha, self.beta, self.gamma)
 		return np.array(quat, dtype=np.float32)
 
 
