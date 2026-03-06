@@ -531,8 +531,10 @@ class BaseThing(blue.ThingType):
 			the Thing itself if it has no parent.
 		"""
 		root = self
-		while root.parent is not None:
-			root = root.parent
+		parent = getattr(root, '_parent', None)
+		while parent is not None:
+			root = parent
+			parent = getattr(root, '_parent', None)
 		return root
 
 
@@ -549,9 +551,11 @@ class BaseThing(blue.ThingType):
 		"""
 		node = self
 		path = [node]
-		while node.parent is not None:
-			node = node.parent
+		parent = getattr(node, '_parent', None)
+		while parent is not None:
+			node = parent
 			path.append(node)
+			parent = getattr(node, '_parent', None)
 		path.reverse()
 		return path
 
