@@ -547,11 +547,12 @@ class BaseThing(blue.ThingType):
 		list
 			Retrieves a list of all Things that lead from the Thing itself to its root.
 		"""
-		root = self
-		path = [root]
-		while root.parent is not None:
-			path = [root.parent] + path
-			root = root.parent
+		node = self
+		path = [node]
+		while node.parent is not None:
+			node = node.parent
+			path.append(node)
+		path.reverse()
 		return path
 
 
