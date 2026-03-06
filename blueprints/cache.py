@@ -1210,7 +1210,7 @@ class HFieldCache(blue.HFieldCacheType, BaseCache):
 		ncols          = struct.unpack('I', data[4:8])[0]
 		# TRTIANGLE DATA
 		height_data    = data[8:]
-		rows           = []
+		heights        = []
 		for i in range(nrows * ncols):
 			height = height_data[i*4:(i+1)*4]
 			heights.append(bytes_to_float(height))
