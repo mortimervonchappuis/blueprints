@@ -111,7 +111,6 @@ class BaseGeom(blue.GeomType, blue.thing.NodeThing, blue.thing.MoveableThing, bl
 		self.sliding_friction   = sliding_friction
 		self.torsional_friction = torsional_friction
 		self.rolling_friction   = rolling_friction
-		self.margin             = margin
 		# MATERIAL
 		self.material           = material
 		# PSEUDO CHILDREN
