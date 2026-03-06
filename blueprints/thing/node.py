@@ -459,10 +459,9 @@ class NodeThing(base.BaseThing, blue.NodeThingType):
 						#	if dec_child not in descendants[dec_name]['descendants']:
 						#		descendants[dec_name]['descendants'].append(dec_child)
 						descendants[dec_name]['descendants'].extend(dec_children)
-		# ELIMINATE DUPLICATES
+		# ELIMINATE DUPLICATES (order-preserving, O(n))
 		for dec_name, dec_dict in descendants.items():
-			dec_list = dec_dict['descendants']
-			dec_dict['descendants'] = [x for i, x in enumerate(dec_list) if dec_list.index(x) == i]
+			dec_dict['descendants'] = list(dict.fromkeys(dec_dict['descendants']))
 		return descendants
 
 

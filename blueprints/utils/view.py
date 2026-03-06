@@ -112,8 +112,8 @@ class View(blue.ViewType):
 		parent : blue.ThingType
 			The parent of the View.
 		"""
-		# ELIMINATE DUPLICATES
-		elements = [x for i, x in enumerate(elements) if elements.index(x) == i]
+		# ELIMINATE DUPLICATES (order-preserving, O(n))
+		elements = list(dict.fromkeys(elements))
 		self.__ELEMENTS = elements.copy()
 		self.__NAME     = name
 		self.__PARENT   = parent

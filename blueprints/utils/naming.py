@@ -99,7 +99,7 @@ class NameManager:
 			DESCENDANTS[element_type].extend(descendants)
 		#for name, dec_dict in self.root.descendants.items():
 		for element_type, descendants in DESCENDANTS.items():
-			descendants = [descendant for i, descendant in enumerate(descendants) if descendants.index(descendant) == i]
+			descendants = list(dict.fromkeys(descendants))
 			#element_type = dec_dict['type']
 			#descendants  = dec_dict['descendants']
 			self[element_type] = TypeScope(self, descendants)
