@@ -756,24 +756,27 @@ class World(blue.WorldType, blue.thing.NodeThing):
 				assets[asset_type][asset.get('name')] = asset_obj
 		if xml_actuators is not None:
 			for actuator in xml_actuators:
-				actuator_type = actuator.tag
-				actuator_name = actuator.get('name') 
 				actuator_obj  = blue.REGISTER._get_thing(actuator)
 				actuator_obj._IGNORE_CHECKS = True
+				actuator_name = actuator.get('name')
+				# Attach sensors that reference this actuator
 				if actuator_name in sensors['actuator']:
 					actuator_obj.attach(*sensors['actuator'][actuator_name], copy=False)
-				parent_name = actuator.get(actuator_obj._PARENT_REFERENCE)
-				actuators[actuator_obj._PARENT_REFERENCE][parent_name].append(actuator_obj)
-				if parent_name is not None:
+				# Find the parent reference attribute (joint, site, body, or jointinparent)
+				parent_name = None
+				parent_key  = None
+				for attr in ('joint', 'jointinparent', 'site', 'body'):
+					parent_name = actuator.get(attr)
+					if parent_name is not None:
+						parent_key = 'joint' if attr == 'jointinparent' else attr
 						break
-				#for actuator_parent in actuator_obj._PARENT_REFERENCE:
-				#	parent_name = actuator.get(actuator_parent)
-				#	if parent_name is not None:
-				#		break
-				for actuator_reference, reference_type in actuator_obj._OTHER_REFERENCES.items():
-					reference_name = actuator.get(actuator_reference)
-					if reference_name is not None:
-						ref_actuators[reference_type][reference_name].append(actuator_obj)
+				if parent_key is not None:
+					actuators[parent_key][parent_name].append(actuator_obj)
+				# Handle secondary references (refsite)
+				for ref_attr, ref_type in actuator_obj._OTHER_REFERENCES.items():
+					ref_name = actuator.get(ref_attr)
+					if ref_name is not None:
+						ref_actuators[ref_type][ref_name].append(actuator_obj)
 		# INIT WORLD
 		world = object.__new__(cls)
 		world.__init__(**init_args)
