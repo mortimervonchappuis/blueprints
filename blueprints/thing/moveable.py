@@ -207,7 +207,7 @@ class MoveableThing(blue.MoveableThingType, base.BaseThing):
 			parent_R = np.eye(3)
 		else:
 			parent_R = self.parent.global_rotation_matrix
-		R = blue.Roration.E_rot(self._alpha, self._beta, self._gamma)
+		R = blue.Rotation.E_rot(self._alpha, self._beta, self._gamma)
 		global_R = parent_R @ R
 		data_view = getattr(self.root._mj_data, self._MUJOCO_OBJ)
 		data_view(self.name).xmat = global_R.reshape((-1,))
