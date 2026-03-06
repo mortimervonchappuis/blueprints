@@ -724,9 +724,18 @@ class World(blue.WorldType, blue.thing.NodeThing):
 			angle = xml_compiler.get('angle')
 			if angle is not None:
 				init_args['angle'] = angle
+			autolimits = xml_compiler.get('autolimits')
+			if autolimits is not None:
+				init_args['autolimits'] = autolimits == 'true'
 		if xml_option is not None:
 			init_args['viscosity']  = float(xml_option.get('viscosity')) if xml_option.get('viscosity') is not None else 0.
 			init_args['integrator'] = xml_option.get('integrator')
+			timestep = xml_option.get('timestep')
+			if timestep is not None:
+				init_args['timestep'] = float(timestep)
+			cone = xml_option.get('cone')
+			if cone is not None:
+				init_args['cone'] = cone
 			xml_flag = xml_option.find('flag')
 			if xml_flag is not None:
 				init_args['gravity'] = xml_flag.get('gravity') == 'enable'
