@@ -78,7 +78,7 @@ a simplified hand model using Views.
 
 import numpy as np
 import blueprints as blue
-from collections import defaultdict
+from collections import defaultdict, deque
 from itertools import count, chain
 from types import BuiltinFunctionType, FunctionType, MethodType
 
@@ -854,11 +854,11 @@ class LatticeView(blue.LatticeViewType):
 
 
 	def __iter__(self) -> blue.ThingType:
-		queue = list(self.__THINGS)
+		queue = deque(self.__THINGS)
 		while queue:
-			item = queue.pop(0)
+			item = queue.popleft()
 			if isinstance(item, list):
-				queue = list(item) + queue
+				queue.extendleft(reversed(item))
 			else:
 				yield item
 
