@@ -159,6 +159,24 @@ class BaseGeom(blue.GeomType, blue.thing.NodeThing, blue.thing.MoveableThing, bl
 		return super()._build(parent, world, indicies, **kwargs)
 
 
+	@blue.restrict
+	@classmethod
+	def _from_xml_element(cls,
+			      xml_element: xml.Element,
+			      material:    blue.MaterialType|None = None,
+			      **kwargs) -> blue.ThingType:
+		init_args, post_args, rest_args = cls._xml_element_args(xml_element)
+		init_args['copy'] = False
+		if material is not None:
+			init_args['material'] = material
+		init_args.update(kwargs)
+		obj = object.__new__(cls)
+		obj.__init__(**init_args)
+		for key, val in post_args.items():
+			setattr(obj, key, val)
+		return obj
+
+
 	@property
 	def type(self) -> str:
 		"""
@@ -1530,19 +1548,22 @@ class Mesh(blue.MeshGeomType, BaseGeom):
 
 	@blue.restrict
 	@classmethod
-	def _from_xml_element(cls, 
-			      xml_element: xml.Element, 
-			      asset:       blue.AssetType) -> blue.ThingType:
+	def _from_xml_element(cls,
+			      xml_element: xml.Element,
+			      asset:       blue.AssetType,
+			      material:    blue.MaterialType|None = None) -> blue.ThingType:
 		"""
 		This method reconstructs a Mesh from an xml element.
-		
+
 		Parameters
 		----------
 		xml_element : xml.Element
 			The xml element from which a Mesh is reconstructed.
 		asset : blue.AssetType
 			The asset from which the Mesh takes its data.
-		
+		material : blue.MaterialType | None, optional
+			The Material assigned to the Mesh.
+
 		Returns
 		-------
 		blue.ThingType
@@ -1552,6 +1573,8 @@ class Mesh(blue.MeshGeomType, BaseGeom):
 		geom_type = rest_args['type']
 		geom = object.__new__(blue.REGISTER.GEOM_THINGS[geom_type])
 		init_args['asset'] = asset
+		if material is not None:
+			init_args['material'] = material
 		geom.__init__(**init_args)
 		for key, val in post_args.items():
 			setattr(geom, key, val)

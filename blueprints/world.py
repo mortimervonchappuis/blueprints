@@ -706,9 +706,13 @@ class World(blue.WorldType, blue.thing.NodeThing):
 		init_args     = dict()
 		caches        = defaultdict(dict)
 		assets        = defaultdict(dict)
+		materials     = dict()
 		sensors       = defaultdict(lambda: defaultdict(list))
 		actuators     = defaultdict(lambda: defaultdict(list))
 		ref_actuators = defaultdict(lambda: defaultdict(list))
+		TEXTURE_CLASSES = {'2d':     blue.texture.Plane,
+				   'cube':   blue.texture.Box,
+				   'skybox': blue.texture.Skybox}
 		xml_tree      = xml.fromstring(string)
 		xml_compiler  = xml_tree.find('compiler')
 		xml_assets    = xml_tree.find('asset')
@@ -747,22 +751,34 @@ class World(blue.WorldType, blue.thing.NodeThing):
 				sensor_parent = sensor_obj._PARENT_TYPE
 				sensors[sensor_parent][sensor.get(sensor_parent)].append(sensor_obj)
 		if xml_assets is not None:
+			# First pass: textures and cache-based assets (mesh, hfield)
 			for asset in xml_assets:
 				asset_type = asset.tag
-				if asset_type in blue.REGISTER.CACHE_THINGS:
+				if asset_type == 'texture':
+					tex_type  = asset.get('type', '2d')
+					tex_class = TEXTURE_CLASSES[tex_type]
+					tex_obj   = tex_class(builtin=asset.get('builtin'),
+							      name=asset.get('name'))
+					assets['texture'][asset.get('name')] = tex_obj
+				elif asset_type in blue.REGISTER.CACHE_THINGS:
 					asset_name = asset.get('name')
 					if asset_name in caches[asset_type]:
 						cache = caches[asset_type][asset_name]
 					else:
 						cache_class = blue.REGISTER.CACHE_THINGS[asset_type]
 						cache = cache_class._from_xml_element(asset)
-					# BUILD ASSET
 					asset_class = blue.REGISTER._get_thing_class(asset)
-					asset_obj   = asset_class._from_xml_element(xml_element=asset, 
+					asset_obj   = asset_class._from_xml_element(xml_element=asset,
 											cache=cache)
-				else:
-					asset_obj = blue.REGISTER._get_thing(asset)
-				assets[asset_type][asset.get('name')] = asset_obj
+					assets[asset_type][asset.get('name')] = asset_obj
+			# Second pass: materials (reference textures by name)
+			for asset in xml_assets:
+				if asset.tag == 'material':
+					tex_name = asset.get('texture')
+					texture  = assets['texture'].get(tex_name) if tex_name else None
+					mat_obj  = blue.Material(texture=texture,
+								 name=asset.get('name'))
+					materials[asset.get('name')] = mat_obj
 		if xml_actuators is not None:
 			for actuator in xml_actuators:
 				actuator_obj  = blue.REGISTER._get_thing(actuator)
@@ -790,11 +806,12 @@ class World(blue.WorldType, blue.thing.NodeThing):
 		world = object.__new__(cls)
 		world.__init__(**init_args)
 		for xml_element in xml_worldbody:
-			cls._build_from_xml(parent=world, 
-						xml_element=xml_element, 
-						assets=assets, 
-						sensors=sensors, 
-						actuators=actuators, 
+			cls._build_from_xml(parent=world,
+						xml_element=xml_element,
+						assets=assets,
+						materials=materials,
+						sensors=sensors,
+						actuators=actuators,
 						ref_actuators=ref_actuators)
 		for tag_actuators in actuators.values():
 			for name_parent in tag_actuators.values():
@@ -838,15 +855,16 @@ class World(blue.WorldType, blue.thing.NodeThing):
 	@blue.restrict
 	@classmethod
 	def _build_from_xml(cls,
-			    parent, 
-			    xml_element, 
-			    assets:        dict, 
-			    sensors:       dict, 
-			    actuators:     dict, 
+			    parent,
+			    xml_element,
+			    assets:        dict,
+			    materials:     dict,
+			    sensors:       dict,
+			    actuators:     dict,
 			    ref_actuators: dict) -> blue.ThingType:
 		"""
 		This method builds the world from the xml Element.
-		
+
 		Parameters
 		----------
 		parent : WorldType
@@ -855,6 +873,8 @@ class World(blue.WorldType, blue.thing.NodeThing):
 			The xml element from which the Things used for reconstruction are taken.
 		assets : dict
 			A dictionary of assets.
+		materials : dict
+			A dictionary of materials.
 		sensors : dict
 			A dictionary of sensors.
 		actuators : dict
@@ -870,6 +890,9 @@ class World(blue.WorldType, blue.thing.NodeThing):
 		if xml_type in assets:
 			xml_name = xml_element.get(xml_type)
 			xml_args['asset'] = assets[xml_type][xml_name]
+		mat_name = xml_element.get('material')
+		if mat_name is not None and mat_name in materials:
+			xml_args['material'] = materials[mat_name]
 		if xml_tag in sensors:
 			xml_name = xml_element.get('name')
 			xml_args['sensors'] = sensors[xml_tag][xml_name]
@@ -882,11 +905,12 @@ class World(blue.WorldType, blue.thing.NodeThing):
 		obj = obj_class._from_xml_element(xml_element=xml_element, **xml_args)
 		# CONSTRUCT CHILDREN
 		for xml_child in xml_element:
-			cls._build_from_xml(parent=obj, 
-						xml_element=xml_child, 
-						assets=assets, 
-						sensors=sensors, 
-						actuators=actuators, 
+			cls._build_from_xml(parent=obj,
+						xml_element=xml_child,
+						assets=assets,
+						materials=materials,
+						sensors=sensors,
+						actuators=actuators,
 						ref_actuators=ref_actuators)
 		parent.attach(obj, copy=False)
 
