@@ -12,3 +12,4 @@ result
 *.pyc 
 
 .vscode/
+test_from_xml.py
