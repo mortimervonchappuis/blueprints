@@ -343,17 +343,31 @@ class Camera(blue.CameraType, blue.thing.CyclicalThing, blue.thing.MoveableThing
 	# XML METHODS/FUNCTIONS
 
 	@blue.restrict
+	@classmethod
+	def _from_xml_element(cls, xml_element) -> blue.ThingType:
+		init_args, post_args, rest_args = cls._xml_element_args(xml_element)
+		init_args['copy'] = False
+		obj = object.__new__(cls)
+		obj.__init__(**init_args)
+		for key, val in post_args.items():
+			setattr(obj, key, val)
+		if 'target' in rest_args:
+			obj._target_name = rest_args['target']
+		return obj
+
+
+	@blue.restrict
 	def _build(self, parent, world, indicies, **kwargs):
 		"""
 		This method is called to build the xml.
-		
+
 		Parameters
 		----------
 		parent : xml.etree.ElementTree.Element
 			The xml element of its parent
 		world : WorldType
 			The World from which the build method was called initially
-		
+
 		Returns
 		-------
 		xml.etree.ElementTree.Element

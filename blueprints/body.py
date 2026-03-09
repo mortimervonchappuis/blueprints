@@ -271,6 +271,7 @@ create a kinematic tree of this structure:
 		"""
 		body = super()._from_xml_element(xml_element)
 		for actuator in actuators:
+			body.attach(actuator, copy=False)
 			actuator.body = body
 		return body
 

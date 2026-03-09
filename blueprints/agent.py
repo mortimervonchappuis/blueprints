@@ -86,6 +86,29 @@ class Agent(blue.AgentType, blue.Body):
 		else:
 			return f"AGENT:{self._name.replace('AGENT:', '')}"
 
+
+	@blue.restrict
+	@classmethod
+	def _from_xml_element(cls,
+			      xml_element,
+			      actuators: list = []) -> blue.ThingType:
+		init_args, post_args, rest_args = cls._xml_element_args(xml_element)
+		init_args['copy'] = False
+		# Strip AGENT: prefix — the name property re-adds it
+		name = post_args.pop('name', None)
+		if name is not None:
+			name = name.replace('AGENT:', '')
+		init_args['name'] = name
+		agent = object.__new__(cls)
+		agent.__init__(**init_args)
+		for key, val in post_args.items():
+			setattr(agent, key, val)
+		for actuator in actuators:
+			agent.attach(actuator, copy=False)
+			actuator.body = agent
+		return agent
+
+
 	# AGENT PROPERTIES
 
 	@property

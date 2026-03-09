@@ -175,14 +175,13 @@ class Light(blue.LightType, blue.thing.CyclicalThing, blue.MoveableThing):
 	@classmethod
 	def _from_xml_element(cls, xml_element: xml.Element) -> blue.ThingType:
 		"""
-		This method reconstructs a Thing from an xml element. If any argument for 
-		an inheriting class has to be set manually this method must be overwritten.
-		
+		This method reconstructs a Light from an xml element.
+
 		Parameters
 		----------
 		xml_element : xml.Element
-			The xml element from which a Thing is reconstructed.
-		
+			The xml element from which a Light is reconstructed.
+
 		Returns
 		-------
 		blue.ThingType
@@ -196,6 +195,8 @@ class Light(blue.LightType, blue.thing.CyclicalThing, blue.MoveableThing):
 		obj.__init__(**init_args)
 		for key, val in post_args.items():
 			setattr(obj, key, val)
+		if 'target' in rest_args:
+			obj._target_name = rest_args['target']
 		return obj
 
 	# KINEMATIC TREE PROPERTIES

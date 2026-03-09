@@ -731,10 +731,10 @@ class JointType(NodeThingType):
 	_NEW_DERIVED_ATTR   = {'type':               str}
 	_NEW_BLUEPRINT_ATTR = {'springdamper':       np.ndarray,
 			       'actuatorforcerange': np.ndarray,
-			       'stiffness':          np.ndarray,
-			       'springref':          np.ndarray,
-			       'armature':           np.ndarray,
-			       'damping':            np.ndarray,
+			       'stiffness':          float,
+			       'springref':          float,
+			       'armature':           float,
+			       'damping':            float,
 			       #'sensors':      list,
 			       #'actuators':    list,
 			       }
@@ -840,9 +840,9 @@ class SiteSensorType(SensorType):
 	description see :class:`blueprints.sensors.SiteSensor`.
 	"""
 
-	_PARENT_TYPE     =  'site'
-	_DERIVED_ATTR    = {'site': str}
-	_NEW_MUJOCO_ATTR = {'site': str}
+	_PARENT_TYPE         =  'site'
+	_NEW_DERIVED_ATTR    = {'site': str}
+	_NEW_MUJOCO_ATTR     = {'site': str}
 
 
 class JointSensorType(SensorType):
@@ -852,9 +852,9 @@ class JointSensorType(SensorType):
 	description see :class:`blueprints.sensors.JointSensor`.
 	"""
 
-	_PARENT_TYPE     =  'joint'
-	_DERIVED_ATTR    = {'joint': str}
-	_NEW_MUJOCO_ATTR = {'joint': str}
+	_PARENT_TYPE         =  'joint'
+	_NEW_DERIVED_ATTR    = {'joint': str}
+	_NEW_MUJOCO_ATTR     = {'joint': str}
 
 
 class ActuatorSensorType(SensorType):
@@ -864,9 +864,9 @@ class ActuatorSensorType(SensorType):
 	description see :class:`blueprints.sensors.ActuatorSensor`.
 	"""
 
-	_PARENT_TYPE     =  'actuator'
-	_DERIVED_ATTR    = {'actuator': str}
-	_NEW_MUJOCO_ATTR = {'actuator': str}
+	_PARENT_TYPE         =  'actuator'
+	_NEW_DERIVED_ATTR    = {'actuator': str}
+	_NEW_MUJOCO_ATTR     = {'actuator': str}
 
 
 class TendonType(FocalThingType):

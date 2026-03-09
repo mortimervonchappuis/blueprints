@@ -208,6 +208,7 @@ class BaseSite(blue.SiteType, blue.thing.MoveableThing, blue.thing.ColoredThing,
 		for key, val in post_args.items():
 			setattr(site, key, val)
 		for actuator in actuators:
+			site.attach(actuator, copy=False)
 			actuator.site = site
 		for actuator in ref_actuators:
 			actuator.refsite = site

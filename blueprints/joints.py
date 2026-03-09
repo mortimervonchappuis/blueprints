@@ -195,6 +195,7 @@ class BaseJoint(blue.JointType, blue.MoveableThing, blue.thing.NodeThing):
 		for key, val in post_args.items():
 			setattr(joint, key, val)
 		for actuator in actuators:
+			joint.attach(actuator, copy=False)
 			actuator.joint = joint
 		return joint
 

@@ -165,6 +165,10 @@ class BaseGeom(blue.GeomType, blue.thing.NodeThing, blue.thing.MoveableThing, bl
 			      xml_element: xml.Element,
 			      material:    blue.MaterialType|None = None,
 			      **kwargs) -> blue.ThingType:
+		# Strip material name from XML before parsing — we inject the object directly
+		mat_attr = xml_element.get('material')
+		if mat_attr is not None:
+			xml_element = xml.Element(xml_element.tag, {k: v for k, v in xml_element.items() if k != 'material'})
 		init_args, post_args, rest_args = cls._xml_element_args(xml_element)
 		init_args['copy'] = False
 		if material is not None:
@@ -1569,6 +1573,9 @@ class Mesh(blue.MeshGeomType, BaseGeom):
 		blue.ThingType
 			The reconstructed Mesh.
 		"""
+		# Strip material name from XML before parsing
+		if xml_element.get('material') is not None:
+			xml_element = xml.Element(xml_element.tag, {k: v for k, v in xml_element.items() if k != 'material'})
 		init_args, post_args, rest_args = cls._xml_element_args(xml_element)
 		geom_type = rest_args['type']
 		geom = object.__new__(blue.REGISTER.GEOM_THINGS[geom_type])

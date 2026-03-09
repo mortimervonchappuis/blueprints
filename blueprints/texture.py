@@ -308,9 +308,9 @@ class BaseTexture(blue.BaseThing):
 	# BLUEPRINT PROPERTIES
 
 	@property
-	def content(self, content) -> str|None:
+	def content(self) -> str|None:
 		"""
-		Content type (MIME type) taking values ``None``, ``'image/png'``, 
+		Content type (MIME type) taking values ``None``, ``'image/png'``,
 		``'image/ktx'`` and ``'image/vnd.mujoco.texture'``.
 
 		Returns
@@ -328,7 +328,7 @@ class BaseTexture(blue.BaseThing):
 
 
 	@property
-	def filename(self, file) -> str|None:
+	def filename(self) -> str|None:
 		"""
 		Name of the texture file.
 
@@ -347,7 +347,7 @@ class BaseTexture(blue.BaseThing):
 
 
 	@property
-	def grid_size(self, grid_size) -> list[int]:
+	def grid_size(self) -> list[int]:
 		"""
 		Grid size attrigute ``[n_rows, n_cols]`` defining the grid. 
 		For non-grid Textures this value is ignored.
@@ -367,7 +367,7 @@ class BaseTexture(blue.BaseThing):
 
 
 	@property
-	def grid_layout(self, grid_layout) -> str|None:
+	def grid_layout(self) -> str|None:
 		"""
 		The layout of the grid. See example above.
 
@@ -386,7 +386,7 @@ class BaseTexture(blue.BaseThing):
 
 
 	@property
-	def filename_right(self, filename_right) -> str|None:
+	def filename_right(self) -> str|None:
 		"""
 		The file name for the right side of a :class:`Box`.
 
@@ -405,7 +405,7 @@ class BaseTexture(blue.BaseThing):
 
 
 	@property
-	def filename_left(self, filename_left) -> str|None:
+	def filename_left(self) -> str|None:
 		"""
 		The file name for the left side of a :class:`Box`.
 		
@@ -424,7 +424,7 @@ class BaseTexture(blue.BaseThing):
 
 
 	@property
-	def filename_up(self, filename_up) -> str|None:
+	def filename_up(self) -> str|None:
 		"""
 		The file name for the upper side of a :class:`Box`.
 		
@@ -443,7 +443,7 @@ class BaseTexture(blue.BaseThing):
 
 
 	@property
-	def filename_down(self, filename_down) -> str|None:
+	def filename_down(self) -> str|None:
 		"""
 		The file name for the down side of a :class:`Box`.
 		
@@ -462,7 +462,7 @@ class BaseTexture(blue.BaseThing):
 
 
 	@property
-	def filename_front(self, filename_front) -> str|None:
+	def filename_front(self) -> str|None:
 		"""
 		The file name for the front side of a :class:`Box`.
 		
@@ -481,7 +481,7 @@ class BaseTexture(blue.BaseThing):
 
 
 	@property
-	def filename_back(self, filename_back) -> str|None:
+	def filename_back(self) -> str|None:
 		"""
 		The file name for the back side of a :class:`Box`.
 		
@@ -500,7 +500,7 @@ class BaseTexture(blue.BaseThing):
 
 
 	@property
-	def builtin(self, builtin) -> str|None:
+	def builtin(self) -> str|None:
 		"""
 		If set, this attribute specifies a builtin procedural Texture. 
 		See examples above.
@@ -520,7 +520,7 @@ class BaseTexture(blue.BaseThing):
 
 
 	@property
-	def color_1(self, color_1) -> blue.ColorType:
+	def color_1(self) -> blue.ColorType:
 		"""
 		The first color of a procedural Texture.
 
@@ -539,7 +539,7 @@ class BaseTexture(blue.BaseThing):
 
 
 	@property
-	def color_2(self, color_2) -> blue.ColorType:
+	def color_2(self) -> blue.ColorType:
 		"""
 		The second color of a procedural Texture.
 		
@@ -558,7 +558,7 @@ class BaseTexture(blue.BaseThing):
 
 
 	@property
-	def mark(self, mark) -> str|None:
+	def mark(self) -> str|None:
 		"""
 		If set this attribute specifies additional markings on 
 		a procedural Texture. Possible values are ``None``, 
@@ -579,7 +579,7 @@ class BaseTexture(blue.BaseThing):
 
 
 	@property
-	def color_mark(self, color_mark) -> blue.ColorType:
+	def color_mark(self) -> blue.ColorType:
 		"""
 		The mark color of a procedural Texture.
 		
@@ -598,7 +598,7 @@ class BaseTexture(blue.BaseThing):
 
 
 	@property
-	def random(self, random) -> float:
+	def random(self) -> float:
 		"""
 		If the ``mark`` attribute is set to ``'random'``, this 
 		attribute specifies the probability of a pixel in the 
@@ -619,7 +619,7 @@ class BaseTexture(blue.BaseThing):
 
 
 	@property
-	def width(self, width) -> int:
+	def width(self) -> int:
 		"""
 		The width of a procedural texture, i.e., the number of columns 
 		in the image. Larger values usually result in higher quality 
@@ -642,7 +642,7 @@ class BaseTexture(blue.BaseThing):
 
 
 	@property
-	def height(self, height) -> int:
+	def height(self) -> int:
 		"""
 		The height of the procedural texture, i.e., the number of rows 
 		in the image. For :class:`Box` and :class:`Skybox` textures, this attribute is 
@@ -664,7 +664,7 @@ class BaseTexture(blue.BaseThing):
 
 
 	@property
-	def h_flip(self, h_flip) -> bool:
+	def h_flip(self) -> bool:
 		"""
 		If true, images loaded from file are flipped in the horizontal 
 		direction. Does not affect procedural textures.
@@ -684,7 +684,7 @@ class BaseTexture(blue.BaseThing):
 
 
 	@property
-	def v_flip(self, v_flip) -> bool:
+	def v_flip(self) -> bool:
 		"""
 		If true, images loaded from file are flipped in the vertical 
 		direction. Does not affect procedural textures.
@@ -704,7 +704,7 @@ class BaseTexture(blue.BaseThing):
 
 
 	@property
-	def n_channel(self, n_channel) -> int:
+	def n_channel(self) -> int:
 		"""
 		The number of channels in the texture image file. This allows 
 		loading 4-channel textures (RGBA) or single-channel textures 
