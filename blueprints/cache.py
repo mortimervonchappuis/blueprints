@@ -1162,6 +1162,8 @@ class HFieldCache(blue.HFieldCacheType, BaseCache):
 		if 'terrain' in post_args:
 			init_args['terrain'] = post_args['terrain']
 			del post_args['terrain']
+		if 'file' in rest_args:
+			init_args['filename'] = rest_args['file']
 		obj = object.__new__(cls)
 		obj.__init__(**init_args)
 		for key, val in post_args.items():

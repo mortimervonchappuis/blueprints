@@ -1647,7 +1647,28 @@ class HFieldAsset(blue.HFieldAssetType, BaseAsset, blue.thing.MoveableThing):
 		return self._xml_root
 
 
-	def __getitem__(self, 
+	@blue.restrict
+	@classmethod
+	def _from_xml_element(cls,
+			      xml_element: xml.Element,
+			      cache:       blue.CacheType) -> blue.ThingType:
+		init_args, post_args, rest_args = cls._xml_element_args(xml_element)
+		init_args['cache'] = cache
+		# size is a read-only derived property; convert to init args
+		size = post_args.pop('size', None)
+		if size is not None:
+			init_args['x_length']      = float(size[0]) * 2
+			init_args['y_length']      = float(size[1]) * 2
+			init_args['z_length']      = float(size[2]) * 2
+			init_args['height_offset'] = float(size[3]) * 2
+		obj = object.__new__(cls)
+		obj.__init__(**init_args)
+		for key, val in post_args.items():
+			setattr(obj, key, val)
+		return obj
+
+
+	def __getitem__(self,
 			key: tuple[slice|int]) -> np.ndarray|np.float32:
 		"""
 		Returns
