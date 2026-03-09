@@ -352,6 +352,19 @@ class World(blue.WorldType, blue.thing.NodeThing):
 			self._built = False
 			for tendon in self.descendants['tendons']['descendants']:
 				tendon._built = False
+			# Reset _built on material/texture assets so they
+			# re-emit their XML elements on the next build.
+			for thing in self.all:
+				asset = getattr(thing, 'asset', None)
+				if asset is not None and hasattr(asset, '_built'):
+					asset._built = False
+					tex = getattr(asset, 'texture', None)
+					if tex is not None:
+						tex_asset = getattr(tex, 'asset', None)
+						if tex_asset is not None and hasattr(tex_asset, '_built'):
+							tex_asset._built = False
+			if self.texture is not None:
+				self.texture.asset._built = False
 			self._name_manager.unregister()
 			self._gl_context.free()
 			del self._mj_model, self._mj_data, self._gl_context
@@ -750,15 +763,45 @@ class World(blue.WorldType, blue.thing.NodeThing):
 				sensor_parent = sensor_obj._PARENT_TYPE
 				sensors[sensor_parent][sensor.get(sensor_parent)].append(sensor_obj)
 		if xml_assets is not None:
+			# XML attr name → Texture constructor param name
+			TEX_ATTR_MAP = {'file':      'filename',     'rgb1':       'color_1',
+					'rgb2':      'color_2',      'markrgb':    'color_mark',
+					'gridsize':  'grid_size',    'gridlayout': 'grid_layout',
+					'hflip':     'h_flip',       'vflip':      'v_flip',
+					'nchannel':  'n_channel',    'content_type': 'content',
+					'fileright': 'filename_right',  'fileleft':  'filename_left',
+					'fileup':    'filename_up',     'filedown':  'filename_down',
+					'filefront': 'filename_front',  'fileback':  'filename_back'}
+			TEX_FLOAT  = {'random'}
+			TEX_INT    = {'width', 'height', 'n_channel', 'nchannel'}
+			TEX_BOOL   = {'hflip', 'vflip', 'h_flip', 'v_flip'}
+			TEX_ARRAY  = {'rgb1', 'rgb2', 'markrgb', 'gridsize',
+				       'color_1', 'color_2', 'color_mark', 'grid_size'}
+			TEX_SKIP   = {'type', 'name'}
 			# First pass: textures and cache-based assets (mesh, hfield)
 			for asset in xml_assets:
 				asset_type = asset.tag
 				if asset_type == 'texture':
-					tex_type  = asset.get('type', '2d')
-					tex_class = TEXTURE_CLASSES[tex_type]
-					tex_obj   = tex_class(builtin=asset.get('builtin'),
-							      name=asset.get('name'))
-					assets['texture'][asset.get('name')] = tex_obj
+					tex_type   = asset.get('type', '2d')
+					tex_class  = TEXTURE_CLASSES[tex_type]
+					tex_kwargs = {}
+					for k, v in asset.items():
+						if k in TEX_SKIP:
+							continue
+						param = TEX_ATTR_MAP.get(k, k)
+						if k in TEX_FLOAT:
+							v = float(v)
+						elif k in TEX_INT:
+							v = int(v)
+						elif k in TEX_BOOL:
+							v = v == 'true'
+						elif k in TEX_ARRAY:
+							v = [float(x) for x in v.split()]
+						tex_kwargs[param] = v
+					tex_name = asset.get('name')
+					tex_obj = tex_class(name=tex_name, **tex_kwargs)
+					tex_obj.asset._name = tex_name
+					assets['texture'][tex_name] = tex_obj
 				elif asset_type in blue.REGISTER.CACHE_THINGS:
 					asset_name = asset.get('name')
 					if asset_name in caches[asset_type]:
@@ -771,13 +814,37 @@ class World(blue.WorldType, blue.thing.NodeThing):
 											cache=cache)
 					assets[asset_type][asset.get('name')] = asset_obj
 			# Second pass: materials (reference textures by name)
+			MAT_FLOAT = {'emission', 'specular', 'shininess', 'reflectance',
+				      'metallic', 'roughness'}
+			MAT_BOOL  = {'texuniform'}
+			MAT_ARRAY = {'texrepeat', 'rgba'}
+			MAT_SKIP  = {'name', 'texture'}
 			for asset in xml_assets:
 				if asset.tag == 'material':
-					tex_name = asset.get('texture')
-					texture  = assets['texture'].get(tex_name) if tex_name else None
-					mat_obj  = blue.Material(texture=texture,
-								 name=asset.get('name'))
-					materials[asset.get('name')] = mat_obj
+					tex_name   = asset.get('texture')
+					texture    = assets['texture'].get(tex_name) if tex_name else None
+					mat_kwargs = {}
+					for k, v in asset.items():
+						if k in MAT_SKIP:
+							continue
+						if k == 'rgba':
+							mat_kwargs['color'] = [float(x) for x in v.split()]
+						elif k in MAT_FLOAT:
+							mat_kwargs[k] = float(v)
+						elif k in MAT_BOOL:
+							mat_kwargs[k] = v == 'true'
+						elif k in MAT_ARRAY:
+							mat_kwargs[k] = [float(x) for x in v.split()]
+						else:
+							mat_kwargs[k] = v
+					mat_name = asset.get('name')
+					mat_obj = blue.Material(texture=texture,
+								name=mat_name,
+								**mat_kwargs)
+					# Preserve the original asset name so the
+					# round-tripped XML uses the same identifier.
+					mat_obj.asset._name = mat_name
+					materials[mat_name] = mat_obj
 		if xml_actuators is not None:
 			for actuator in xml_actuators:
 				actuator_obj  = blue.REGISTER._get_thing(actuator)
@@ -801,6 +868,11 @@ class World(blue.WorldType, blue.thing.NodeThing):
 					ref_name = actuator.get(ref_attr)
 					if ref_name is not None:
 						ref_actuators[ref_type][ref_name].append(actuator_obj)
+		# Assign skybox texture to init_args if present
+		for tex_obj in assets.get('texture', {}).values():
+			if isinstance(tex_obj, blue.texture.Skybox):
+				init_args['texture'] = tex_obj
+				break
 		# INIT WORLD
 		world = object.__new__(cls)
 		world.__init__(**init_args)
@@ -816,6 +888,13 @@ class World(blue.WorldType, blue.thing.NodeThing):
 			for name_parent in tag_actuators.values():
 				for actuator in name_parent:
 					actuator._IGNORE_CHECKS = False
+		# Resolve camera/light target references by name
+		all_things = {t.name: t for t in world.all}
+		for thing in world.all:
+			if isinstance(thing, (blue.Camera, blue.Light)):
+				target_name = getattr(thing, '_target_name', None)
+				if target_name is not None and target_name in all_things:
+					thing.target = all_things[target_name]
 		return world
 
 
@@ -884,7 +963,12 @@ class World(blue.WorldType, blue.thing.NodeThing):
 		# CONSTRUCT ELEMENT
 		xml_type  = xml_element.get('type')
 		xml_tag   = xml_element.tag
-		obj_class = blue.REGISTER._get_thing_class(xml_element)
+		xml_name  = xml_element.get('name', '')
+		# Detect Agent bodies by AGENT: prefix
+		if xml_tag == 'body' and xml_name.startswith('AGENT:'):
+			obj_class = blue.Agent
+		else:
+			obj_class = blue.REGISTER._get_thing_class(xml_element)
 		xml_args  = dict()
 		if xml_type in assets:
 			xml_name = xml_element.get(xml_type)
