@@ -261,7 +261,7 @@ class MoveableThing(blue.MoveableThingType, base.BaseThing):
 	def global_rotation_matrix(self) -> np.ndarray:
 		"""
 		The matrix is constructed for global orientation) — in contrast to 
-		local orientation. For this use :meth:`Rotation.E_rot <blueprints.utils.geometry.Rotation.Rotation.E_rot>`.
+		local orientation. For this use :meth:`Rotation.E_rot <blueprints.utils.geometry.Rotation.E_rot>`.
 
 		Returns
 		-------
