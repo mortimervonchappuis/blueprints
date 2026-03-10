@@ -322,6 +322,9 @@ class World(blue.WorldType, blue.thing.NodeThing):
 		if len(self._xml_actuator) == 0:
 			actuators = self._xml_root.find('actuator')
 			self._xml_root.remove(actuators)
+		if len(self._xml_tendon) == 0:
+			tendons = self._xml_root.find('tendon')
+			self._xml_root.remove(tendons)
 		# SET INDENTS
 		xml.indent(self._xml_root, '\t', 0)
 		self._built = True
@@ -886,13 +889,81 @@ class World(blue.WorldType, blue.thing.NodeThing):
 			for name_parent in tag_actuators.values():
 				for actuator in name_parent:
 					actuator._IGNORE_CHECKS = False
-		# Resolve camera/light target references by name
+		# Resolve camera/light target references and build name lookup
 		all_things = {t.name: t for t in world.all}
 		for thing in world.all:
 			if isinstance(thing, (blue.Camera, blue.Light)):
 				target_name = getattr(thing, '_target_name', None)
 				if target_name is not None and target_name in all_things:
 					thing.target = all_things[target_name]
+		# Reconstruct tendons
+		xml_tendons = xml_tree.find('tendon')
+		if xml_tendons is not None:
+			TENDON_FLOAT = {'frictionloss', 'width', 'stiffness', 'damping',
+					'armature'}
+			TENDON_BOOL  = {'limited', 'actuatorfrclimited'}
+			TENDON_ARRAY = {'range', 'actuatorfrcrange'}
+			TENDON_SKIP  = {'name'}
+			TENDON_RENAME = {'actuatorfrclimited': 'act_force_limited'}
+			def _bind_path(path, children, all_things):
+				"""Bind XML children to a Path, handling pulleys recursively."""
+				i = 0
+				while i < len(children):
+					child = children[i]
+					if child.tag == 'joint':
+						coef = child.get('coef')
+						coef = float(coef) if coef is not None else None
+						path.bind(all_things[child.get('joint')], coef=coef)
+					elif child.tag == 'site':
+						path.bind(all_things[child.get('site')])
+					elif child.tag == 'geom':
+						side_name = child.get('sidesite')
+						side_obj = all_things[side_name] if side_name else None
+						path.bind(all_things[child.get('geom')], side_site=side_obj)
+					elif child.tag == 'pulley':
+						divisor = int(child.get('divisor'))
+						branches = path.split(divisor)
+						# Split remaining children into segments delimited by pulleys
+						remaining = children[i+1:]
+						segments = [[]]
+						for rc in remaining:
+							if rc.tag == 'pulley':
+								segments.append([])
+							else:
+								segments[-1].append(rc)
+						# Build wrote branches in reversed order
+						segments.reverse()
+						for branch, segment in zip(branches, segments):
+							_bind_path(branch, segment, all_things)
+						return  # all remaining consumed
+					i += 1
+			for tendon_elem in xml_tendons:
+				tendon_kwargs = {}
+				for k, v in tendon_elem.items():
+					if k in TENDON_SKIP:
+						continue
+					param = TENDON_RENAME.get(k, k)
+					if k in TENDON_FLOAT:
+						tendon_kwargs[param] = float(v)
+					elif k in TENDON_BOOL:
+						tendon_kwargs[param] = v == 'true'
+					elif k in TENDON_ARRAY:
+						vals = [float(x) for x in v.split()]
+						if k == 'range':
+							tendon_kwargs['min_length'] = vals[0]
+							tendon_kwargs['max_length'] = vals[1]
+						elif k == 'actuatorfrcrange':
+							tendon_kwargs['min_act_force'] = vals[0]
+							tendon_kwargs['max_act_force'] = vals[1]
+					elif k == 'rgba':
+						tendon_kwargs['color'] = [float(x) for x in v.split()]
+					else:
+						tendon_kwargs[param] = v
+				tendon_name = tendon_elem.get('name')
+				tendon_kwargs['name'] = tendon_name
+				tendon_obj = blue.Tendon(**tendon_kwargs)
+				with tendon_obj as path:
+					_bind_path(path, list(tendon_elem), all_things)
 		return world
 
 
