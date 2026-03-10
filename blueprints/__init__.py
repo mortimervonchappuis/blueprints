@@ -15,7 +15,7 @@ Concrete Things
 - :mod:`Camera <blueprints.camera>`
 - :mod:`Geoms <blueprints.geoms>` (All but ``BaseGeom``)
 - :mod:`Sites <blueprints.sites>` (All but ``BaseSite``)
-- :mod:`Geoms <blueprints.joints>` (All but ``BaseJoint``)
+- :mod:`Joints <blueprints.joints>` (All but ``BaseJoint``)
 - :mod:`Light <blueprints.light>`
 - :mod:`Materials <blueprints.material>`
 - :mod:`Textures <blueprints.texture>` (All but ``BaseTexture``)

@@ -24,9 +24,9 @@ sys.path.insert(0, str(Path('../..', 'blueprints').resolve()))
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'blueprints'
-copyright = '2026, Mortimer von Chappuis'
+copyright = '2026, Mortimer von Chappuis, Yash Saraswat'
 author = 'Mortimer von Chappuis'
-release = '0.0.5'
+release = '0.1.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

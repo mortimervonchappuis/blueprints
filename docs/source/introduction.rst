@@ -96,7 +96,7 @@ The :class:`Views <blueprints.utils.view.View>` can be chained together. Through
 	 array([-1.59168337e-17,  3.99233288e-18, -9.11748066e-18]), 
 	 array([-1.59168337e-17,  1.14934629e-17, -1.61635064e-18])]
 	>>> humanoid.all.color = '#FF3300'
-	>>> humanoid.all.geoms['left_uarm1']
+	>>> humanoid.all.geoms['left_uarm1'].color
 	[Red[#FF3300]]
 
 
