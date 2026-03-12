@@ -1,13 +1,13 @@
 """
-Gymnasium integration for mujoco_blueprints.
+RL integration for mujoco_blueprints.
 
 Requires gymnasium as an optional dependency::
 
 	pip install gymnasium
 
-or::
+For multi-agent support, also install pettingzoo::
 
-	pip install mujoco-blueprints[rl]
+	pip install pettingzoo
 """
 
 try:
@@ -19,6 +19,15 @@ except ImportError:
 		"  or: pip install mujoco-blueprints[rl]"
 	)
 
-from .env import Env
+from .env      import Env
+from .         import rewards
+from .         import wrappers
 
-__all__ = ["Env"]
+# MultiAgentEnv requires pettingzoo — import lazily
+def __getattr__(name):
+	if name == "MultiAgentEnv":
+		from .multi_env import MultiAgentEnv
+		return MultiAgentEnv
+	raise AttributeError(f"module 'blueprints.rl' has no attribute {name!r}")
+
+__all__ = ["Env", "MultiAgentEnv", "rewards", "wrappers"]
