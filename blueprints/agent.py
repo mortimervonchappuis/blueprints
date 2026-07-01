@@ -91,7 +91,7 @@ class Agent(blue.AgentType, blue.Body):
 	@classmethod
 	def _from_xml_element(cls,
 			      xml_element,
-			      actuators: list = []) -> blue.ThingType:
+			      actuators: list = None) -> blue.ThingType:
 		init_args, post_args, rest_args = cls._xml_element_args(xml_element)
 		init_args['copy'] = False
 		# Strip AGENT: prefix — the name property re-adds it
@@ -103,7 +103,7 @@ class Agent(blue.AgentType, blue.Body):
 		agent.__init__(**init_args)
 		for key, val in post_args.items():
 			setattr(agent, key, val)
-		for actuator in actuators:
+		for actuator in (actuators or []):
 			agent.attach(actuator, copy=False)
 			actuator.body = agent
 		return agent

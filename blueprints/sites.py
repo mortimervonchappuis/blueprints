@@ -174,9 +174,9 @@ class BaseSite(blue.SiteType, blue.thing.MoveableThing, blue.thing.ColoredThing,
 	@classmethod
 	def _from_xml_element(cls, 
 			      xml_element:   xml.Element, 
-			      sensors:       list = [], 
-			      actuators:     list = [], 
-			      ref_actuators: list = []) -> blue.ThingType:
+			      sensors:       list = None,
+			      actuators:     list = None,
+			      ref_actuators: list = None) -> blue.ThingType:
 		"""
 		This method reconstructs a Site from an xml element.
 		
@@ -207,10 +207,10 @@ class BaseSite(blue.SiteType, blue.thing.MoveableThing, blue.thing.ColoredThing,
 		site.__init__(**init_args)
 		for key, val in post_args.items():
 			setattr(site, key, val)
-		for actuator in actuators:
+		for actuator in (actuators or []):
 			site.attach(actuator, copy=False)
 			actuator.site = site
-		for actuator in ref_actuators:
+		for actuator in (ref_actuators or []):
 			actuator.refsite = site
 		return site
 

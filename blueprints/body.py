@@ -255,7 +255,7 @@ create a kinematic tree of this structure:
 	@classmethod
 	def _from_xml_element(cls, 
 			      xml_element: xml.Element, 
-			      actuators:   list = []) -> blue.ThingType:
+			      actuators:   list = None) -> blue.ThingType:
 		"""
 		This method reconstructs a Body from an xml element.
 		
@@ -270,7 +270,7 @@ create a kinematic tree of this structure:
 			The reconstructed Body.
 		"""
 		body = super()._from_xml_element(xml_element)
-		for actuator in actuators:
+		for actuator in (actuators or []):
 			body.attach(actuator, copy=False)
 			actuator.body = body
 		return body

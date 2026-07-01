@@ -347,7 +347,7 @@ class MeshCache(blue.MeshCacheType, BaseCache):
 				vertecies.append(tuple(map(float, values)))
 			elif line.startswith('vn '):
 				values = line[3:].strip().split(' ')[:3]
-				vertex_normals.append(np.array(values, dtype=np.float64))
+				vertex_normals.append(np.array(values, dtype=np.float32))
 			elif line.startswith('vt '):
 				values = line[3:].strip().split(' ')[:2]
 				texcoords.append(tuple(map(float, values)))

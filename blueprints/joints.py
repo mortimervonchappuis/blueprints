@@ -165,7 +165,7 @@ class BaseJoint(blue.JointType, blue.MoveableThing, blue.thing.NodeThing):
 	def _from_xml_element(cls, 
 				  xml_element: xml.Element, 
 				  sensors:     list = None, 
-				  actuators:   list = []) -> blue.ThingType:
+				  actuators:   list = None) -> blue.ThingType:
 		"""
 		This method reconstructs a Joint from an xml element.
 		
@@ -194,7 +194,7 @@ class BaseJoint(blue.JointType, blue.MoveableThing, blue.thing.NodeThing):
 		joint.__init__(**init_args)
 		for key, val in post_args.items():
 			setattr(joint, key, val)
-		for actuator in actuators:
+		for actuator in (actuators or []):
 			joint.attach(actuator, copy=False)
 			actuator.joint = joint
 		return joint
